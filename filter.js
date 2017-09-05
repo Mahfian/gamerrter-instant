@@ -49,7 +49,7 @@ var derpCheckFriendship = function(tweet, reply, tweep){
 
 var retweetById = function(idStr) {
   var randy = Math.random();
-  if (randy <.84) {
+  if (randy <.99) {
     twit.post('statuses/retweet/:id', {id: idStr}, function(err, reply) {
       console.log("retweeted id:" + idStr);
       err;
@@ -61,5 +61,5 @@ var retweetById = function(idStr) {
 
 var http = require("http");
 setInterval(function() {
-    http.get("http://secret-ocean-5342.herokuapp.com");
+    http.get("http://gamerrter-instant.herokuapp.com");
 }, 600000);
