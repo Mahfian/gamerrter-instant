@@ -61,5 +61,5 @@ var retweetById = function(idStr) {
 
 var http = require("http");
 setInterval(function() {
-    http.get("http://gamerrter-instant.herokuapp.com");
+    http.get("http://gamer-rter-instant.herokuapp.com");
 }, 600000);
