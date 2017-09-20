@@ -27,6 +27,7 @@ if (process.env.REDISCLOUD_URL) {
 }
 
 var REDIS_KEY = 'screenNameCooldown';
+var REDIS_KEY_COOLDOWN_DM = 'cooldownDMs';
 
 var userStream = twit.stream('user', { with: 'user', replies: 'all' });
 
@@ -74,12 +75,31 @@ var retweetById = function(idStr, screenName) {
                       });
                       
         } else {
-            console.log('User is on cooldown');
+          cooldownNotify(screenName);
+          console.log('User is on cooldown');
         }
     });
   }
   else {
   }
+};
+
+var cooldownNotify = function(screenName) {
+  client.sadd(REDIS_KEY_COOLDOWN_DM, screenName, function(err, reply) {
+        if (err) {
+            console.log(err);
+        } else if (reply == 1 || screenName == process.env.TWITTER_DEBUG_USER) {
+            console.log('This is a new user OR it is the debug user (DM)');
+                      
+                      twit.post('direct_messages/new', {screen_name: screenName, text: 'Hey, ' + screenName + ', your account is on cooldown! Try tagging us again in an hour.'}, function(err, data, reply) {
+                      console.log("DM sent to :" + screenName);
+                      err;
+    });
+                      
+        } else {
+          console.log('User has already been notified');
+        }
+    });
 };
 
 setInterval(function() {
