@@ -60,9 +60,6 @@ var derpCheckFriendship = function(tweet, reply, tweep){
 };
 
 var retweetById = function(idStr, screenName) {
-  var randy = Math.random();
-  if (randy <.99) {
-    
     client.sadd(REDIS_KEY, screenName, function(err, reply) {
         if (err) {
             console.log(err);
@@ -79,9 +76,6 @@ var retweetById = function(idStr, screenName) {
           console.log('User is on cooldown');
         }
     });
-  }
-  else {
-  }
 };
 
 var cooldownNotify = function(screenName) {
