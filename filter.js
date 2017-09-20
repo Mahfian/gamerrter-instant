@@ -91,7 +91,7 @@ var cooldownNotify = function(screenName) {
         } else if (reply == 1 || screenName == process.env.TWITTER_DEBUG_USER) {
             console.log('This is a new user OR it is the debug user (DM)');
                       
-                      twit.post('direct_messages/new', {screen_name: screenName, text: 'Hey, ' + screenName + ', your account is on cooldown! Try tagging us again in an hour.'}, function(err, data, reply) {
+                      twit.post('direct_messages/new', {screen_name: screenName, text: 'Hey ' + screenName + ', your account is on cooldown! Try tagging us again in an hour.'}, function(err, data, reply) {
                       console.log("DM sent to :" + screenName);
                       err;
     });
