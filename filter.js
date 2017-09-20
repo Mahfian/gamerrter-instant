@@ -1,4 +1,5 @@
 var Twitter = require('twit');
+var redis = require('redis');
 var twit = new Twitter({
     consumer_key: process.env.TWITTER_CONSUMER_KEY,
     consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
@@ -16,6 +17,16 @@ app.get('/', function(req, res){
 var port = process.env.PORT || 3000;
 app.listen(port);
 console.log("Express is running on port " + port);
+
+
+var url = require('url');
+var redisURL = url.parse(process.env.REDISCLOUD_URL || 'redis://127.0.0.1:6379');
+var client = redis.createClient(redisURL.port, redisURL.hostname, {no_ready_check: true});
+if (process.env.REDISCLOUD_URL) {
+    client.auth(redisURL.auth.split(":")[1]);
+}
+
+var REDIS_KEY = 'screenNameCooldown';
 
 var userStream = twit.stream('user', { with: 'user', replies: 'all' });
 
@@ -38,7 +49,7 @@ userStream.on('tweet', function(tweet) {
 var derpCheckFriendship = function(tweet, reply, tweep){
 	if (tweet.in_reply_to_user_id == null) {
     if (reply.relationship.target.following == true){
-        retweetById(tweet.id_str);
+        retweetById(tweet.id_str, tweet.user.screen_name);
     }
     else if(reply.relationship.target.following == false)
       {console.log('nope. user does not follow');} 
@@ -47,17 +58,34 @@ var derpCheckFriendship = function(tweet, reply, tweep){
 	}
 };
 
-var retweetById = function(idStr) {
+var retweetById = function(idStr, screenName) {
   var randy = Math.random();
   if (randy <.99) {
-    twit.post('statuses/retweet/:id', {id: idStr}, function(err, reply) {
-      console.log("retweeted id:" + idStr);
-      err;
+    
+    client.sadd(REDIS_KEY, screenName, function(err, reply) {
+        if (err) {
+            console.log(err);
+        } else if (reply == 1 || screenName == process.env.TWITTER_DEBUG_USER) {
+            console.log('This is a new user OR it is the debug user');
+                      
+                      twit.post('statuses/retweet/:id', {id: idStr}, function(err, reply) {
+                      console.log("retweeted id:" + idStr);
+                      err;
+                      });
+                      
+        } else {
+            console.log('User is on cooldown');
+        }
     });
   }
   else {
   }
 };
+
+setInterval(function() {
+    client.del(REDIS_KEY);
+    console.log("database cleared");
+}, 3000000);
 
 var http = require("http");
 setInterval(function() {

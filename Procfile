@@ -1,1 +1,1 @@
-web: node filter.js
+main: node filter.js
